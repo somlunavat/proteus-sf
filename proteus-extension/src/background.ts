@@ -223,14 +223,11 @@ async function reloadAllTabsOnce() {
 }
 
 
-/**
- * Opens the side panel when the extension action is clicked.
- */
+// Clicking the toolbar icon opens the side panel directly (no popup).
 chrome.action.onClicked.addListener((tab) => {
-  if (tab.id) {
-    void setSidepanelState(tab.id, true)
-    chrome.sidePanel.open({ tabId: tab.id })
-  }
+  if (typeof tab.id !== 'number') return
+  const tabId = tab.id
+  void chrome.sidePanel.open({ tabId }).then(() => setSidepanelState(tabId, true))
 })
 
 const sidePanelApi = chrome.sidePanel as unknown as {

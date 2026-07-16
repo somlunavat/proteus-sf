@@ -6,11 +6,17 @@ export default defineManifest({
   name: pkg.name,
   version: pkg.version,
   icons: {
+    16: 'public/logo.png',
+    32: 'public/logo.png',
     48: 'public/logo.png',
+    128: 'public/logos/proteus-mark-black-1024.png',
   },
   action: {
     default_icon: {
+      16: 'public/logo.png',
+      32: 'public/logo.png',
       48: 'public/logo.png',
+      128: 'public/logos/proteus-mark-black-1024.png',
     },
   },
   background: {

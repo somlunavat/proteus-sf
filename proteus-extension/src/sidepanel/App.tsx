@@ -4,6 +4,7 @@ import {
   MESSAGE_TYPES,
   type ClickedElementStored,
 } from '../shared/messages'
+import proteusMark from '../assets/proteus-mark-black.svg'
 import './App.css'
 
 const API_URL = 'http://localhost:8000'
@@ -1669,22 +1670,31 @@ export default function App() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('[DEBUG] handleSubmit called')
     const ws = wsRef.current
     const displayParts = serializeEditorForDisplayParts()
     const displayText = displayPartsToText(displayParts).trim()
     const rawMessage = (await serializeEditorWithHtml()).trim()
-    if (!rawMessage || loading || !activeProject) return
+    console.log('[DEBUG] rawMessage:', JSON.stringify(rawMessage), 'loading:', loading, 'activeProject:', activeProject)
+    if (!rawMessage || loading || !activeProject) {
+      console.log('[DEBUG] blocked by first guard')
+      return
+    }
     if (!ws) {
+      console.log('[DEBUG] blocked: no ws ref')
       setError('Not connected to server yet')
       return
     }
+    console.log('[DEBUG] ws.readyState:', ws.readyState, '(OPEN is', WebSocket.OPEN, ')')
     if (ws.readyState !== WebSocket.OPEN) {
       const opened = await waitForSocketOpen(ws)
       if (!opened) {
+        console.log('[DEBUG] blocked: ws never opened')
         setError('WebSocket not connected')
         return
       }
     }
+    console.log('[DEBUG] passed all guards, proceeding to send')
 
     const finalQuery = rawMessage
     const displayPartsWithHtml = await Promise.all(
@@ -2028,6 +2038,7 @@ export default function App() {
         {sidebarView === 'projects' ? (
           <>
             <div className="sidebar-header">
+              <img src={proteusMark} alt="Proteus" className="brand-logo" />
               <h2>Projects</h2>
             </div>
             <div className="project-create">
@@ -2087,6 +2098,7 @@ export default function App() {
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
               </button>
+              <img src={proteusMark} alt="Proteus" className="brand-logo" />
               <h2>{activeProject?.name ?? 'Conversations'}</h2>
               <button className="new-chat-btn" onClick={startNewConversation} title="New chat">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

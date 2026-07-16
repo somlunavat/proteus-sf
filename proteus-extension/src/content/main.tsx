@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { setHoverHighlighterEnabled, startHoverHighlighter } from './highlighter'
-import { MESSAGE_TYPES } from '../shared/messages'
+import { MESSAGE_TYPES, safeSendMessage } from '../shared/messages'
 import App from './views/App.tsx'
 
 console.log('[Proteus] Hello world from content script!')
@@ -42,7 +42,7 @@ const formatConsoleArgs = (args: unknown[]) =>
 
 const sendConsoleLog = (level: ConsoleLevel, args: unknown[]) => {
   const message = formatConsoleArgs(args)
-  void chrome.runtime.sendMessage({
+  void safeSendMessage({
     type: MESSAGE_TYPES.storeConsoleLog,
     payload: {
       level,

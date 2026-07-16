@@ -29,6 +29,9 @@ const SAVE_DEBOUNCE_MS = 250
 
 import {
   MESSAGE_TYPES,
+  safeSendMessage,
+  safeStorageGet,
+  safeStorageSet,
   type ClickedElementPayload,
   type ClickedElementStored,
 } from '../shared/messages'
@@ -207,7 +210,7 @@ function getElementSelector(el: Element): string | null {
 function scheduleSave() {
   window.clearTimeout(saveTimer)
   saveTimer = window.setTimeout(() => {
-    chrome.storage.local.set({ [STORAGE_KEY]: state })
+    void safeStorageSet({ [STORAGE_KEY]: state })
   }, SAVE_DEBOUNCE_MS)
 }
 
@@ -225,7 +228,7 @@ async function toggleClickedElement(el: Element) {
     timestamp: Date.now(),
   }
 
-  const response = await chrome.runtime.sendMessage({
+  const response = await safeSendMessage({
     type: MESSAGE_TYPES.toggleClicked,
     payload,
   })
@@ -247,7 +250,7 @@ async function toggleClickedElement(el: Element) {
  * Restores persistent clicked highlights for the current URL/tab.
  */
 async function restoreClickedHighlights() {
-  const response = await chrome.runtime.sendMessage({
+  const response = await safeSendMessage({
     type: MESSAGE_TYPES.getClicked,
     url: window.location.href,
   })
@@ -286,14 +289,14 @@ function hideClickedHighlights() {
 async function clearAllClickedHighlights() {
   hideClickedHighlights()
 
-  await chrome.runtime.sendMessage({
+  await safeSendMessage({
     type: MESSAGE_TYPES.clearAllClicked,
   })
 }
 
 async function syncSidepanelState() {
   try {
-    const response = await chrome.runtime.sendMessage({
+    const response = await safeSendMessage({
       type: MESSAGE_TYPES.getSidepanelState,
     })
     if (response?.known === true) {
@@ -434,7 +437,7 @@ export async function startHoverHighlighter() {
   await syncSidepanelState()
 
   try {
-    const stored = await chrome.storage.local.get(STORAGE_KEY)
+    const stored = await safeStorageGet(STORAGE_KEY)
     const saved = stored[STORAGE_KEY] as HighlighterState | undefined
     if (saved) {
       state = {

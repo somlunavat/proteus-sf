@@ -39,3 +39,48 @@ export type ClickedElementPayload = {
 export type ClickedElementStored = ClickedElementPayload & {
   tabId: number
 }
+
+// The extension reloads on every dev-mode file change (or a production update),
+// which severs chrome.runtime/chrome.storage for any content script already
+// injected into an open tab. Those orphaned scripts only go away once the tab
+// is refreshed, so calls from them must fail quietly instead of throwing.
+const isInvalidatedContextError = (error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error)
+  return (
+    message.includes('Extension context invalidated') ||
+    message.includes('Receiving end does not exist') ||
+    message.includes('message channel closed')
+  )
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const safeSendMessage = async (message: unknown): Promise<any> => {
+  if (!chrome.runtime?.id) return undefined
+  try {
+    return await chrome.runtime.sendMessage(message)
+  } catch (error) {
+    if (isInvalidatedContextError(error)) return undefined
+    throw error
+  }
+}
+
+export const safeStorageGet = async (
+  keys: Parameters<typeof chrome.storage.local.get>[0],
+): Promise<Record<string, unknown>> => {
+  if (!chrome.runtime?.id) return {}
+  try {
+    return await chrome.storage.local.get(keys)
+  } catch (error) {
+    if (isInvalidatedContextError(error)) return {}
+    throw error
+  }
+}
+
+export const safeStorageSet = async (items: Record<string, unknown>): Promise<void> => {
+  if (!chrome.runtime?.id) return
+  try {
+    await chrome.storage.local.set(items)
+  } catch (error) {
+    if (!isInvalidatedContextError(error)) throw error
+  }
+}
