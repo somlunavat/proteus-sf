@@ -60,6 +60,27 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
   if (message?.type === MESSAGE_TYPES.getElementHtml) {
     const selector = message?.selector
+    const stripHighlighting = (root: Element) => {
+      const idsToRemove = [
+        'proteus-hover-highlight-style',
+        'proteus-hover-highlight-overlay',
+        'proteus-hover-highlight-label',
+        'proteus-click-highlight-overlay',
+        'proteus-click-highlight-label',
+      ]
+
+      if (root.classList.contains('proteus-clicked-highlight')) {
+        root.classList.remove('proteus-clicked-highlight')
+      }
+
+      root.querySelectorAll('.proteus-clicked-highlight').forEach((el) => {
+        el.classList.remove('proteus-clicked-highlight')
+      })
+
+      idsToRemove.forEach((id) => {
+        root.querySelectorAll(`#${id}`).forEach((el) => el.remove())
+      })
+    }
     if (typeof selector === 'string' && selector.length > 0) {
       const el = document.querySelector(selector)
       if (!el) {
@@ -67,6 +88,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         return true
       }
       const clone = el.cloneNode(true) as Element
+      stripHighlighting(clone)
       sanitizeElementTree(clone)
       sendResponse({ html: clone.outerHTML })
       return true
@@ -76,6 +98,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       sendResponse({ html: '' })
       return true
     }
+    stripHighlighting(body)
     sanitizeElementTree(body)
     sendResponse({ html: body.outerHTML })
     return true
