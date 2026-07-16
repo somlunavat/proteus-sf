@@ -22,9 +22,7 @@ export default function HelloWorld(props: { msg: string }) {
       </div>
 
       <p>
-        Check out
-        <a href="https://github.com/nicedeng/proteus" target="_blank" rel="noreferrer">Proteus Browser</a>
-        , the official repo
+        Proteus Browser
       </p>
 
       <p className="read-the-docs">

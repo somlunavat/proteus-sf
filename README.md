@@ -1,4 +1,4 @@
-# proteus
+# Proteus
 
 ## INSTALLATION INSTRUCTIONS (for Chrome extension)
 
