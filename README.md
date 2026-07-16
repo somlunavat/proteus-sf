@@ -24,3 +24,6 @@ Mac Instructions:
 Non-Mac Instructions:
  - Extensions are created inside of `./backend/demo_code`
  - Follow the `Load Unpacked` instructions from above to load in extensions.
+
+## CHROMIUM FORK
+The Chromium fork is located in the branch: `chromium`.
